@@ -1,7 +1,20 @@
 <template>
-  <ul>
-    <li>1</li>
-    <li>2</li>
-    <li>3</li>
-  </ul>
+  <div>
+    <ul>
+      <li>
+        {{ goods }}
+      </li>
+    </ul>
+  </div>
 </template>
+
+<script>
+export default {
+  asyncData() {
+    return {
+      goods: "电子产品",
+    };
+  },
+};
+</script>
+<style lang="css" scoped></style>

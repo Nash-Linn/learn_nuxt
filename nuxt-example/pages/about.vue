@@ -1,9 +1,12 @@
 <template>
-  <div class="home">
-    <h1>about page</h1>
+  <div>
+    <h1>about</h1>
+
+    <nuxt-link to="/">home</nuxt-link>
   </div>
 </template>
 
 <script>
 export default {};
 </script>
+<style lang="css" scoped></style>

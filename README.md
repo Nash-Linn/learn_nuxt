@@ -102,4 +102,165 @@ export default {
 
    
 
-​	
+	#### 8.1路径和文件的关系
+
+不需要自己写配置文件，直接和文件名对应
+
+| 文件                 | 对应路径             |
+| -------------------- | -------------------- |
+| pages/index.vue      | /                    |
+| pages/login.vue      | /login               |
+| pages/user/order.vue | /user/oder           |
+| pages/good/index.vue | /good(省略index.vue) |
+
+#### 8.2  路由参数
+
+很多时候我们需要在路由上传参数，路由上的参数有两种
+
+- 路径参数：  /goods/100
+- 查询参数：  /goods?id=100
+
+##### 8.2.1 路径参数
+
+为了能够配置路径参数，我们需要以 _ 作为文件名的前缀
+
+接收 /goods/100
+
+```
+<template>
+  <div>
+    <h1>接收路径参数</h1>
+    <h2>文件名定义叫什么名字，变量名就是什么名字</h2>
+    <h2>文件是从上往下找的</h2>
+    {{ $route.params.i }}
+  </div>
+</template>
+```
+
+![image-20230612145236527](README.assets/image-20230612145236527.png)
+
+
+
+接收 /goods/100/200
+
+```
+<template>
+  <div>
+    <h1>接收路径参数</h1>
+    <h2>多个参数需要创建对应多个的路径</h2>
+    <h2>创建文件夹 _cid ,然后再创建文件 _gid.vue</h2>
+    <span>第一个参数： {{ $route.params.cid }} </span>
+    <span>第二个参数： {{ $route.params.gid }}</span>
+  </div>
+</template>
+```
+
+![image-20230612145307577](README.assets/image-20230612145307577.png)
+
+
+
+| 路径           | 对应文件                     | 页面中接受                            |
+| -------------- | ---------------------------- | ------------------------------------- |
+| /goods/100     | pages/goods/_id.vue          | $route.params.id                      |
+| /goods/100/200 | pages/goods/ _cid / _gid.vue | $route.params.cig   $route.params.gid |
+
+
+
+##### 8.2.1 查询参数
+
+```
+  <h4>查询参数传递</h4>
+    <ul>
+      <li><nuxt-link to="/goods?cid=100">goods?id=100</nuxt-link></li>
+      <li>
+        <nuxt-link to="/goods?cid=100&gid=200">goods?cid=100&gid=200</nuxt-link>
+      </li>
+    </ul>
+```
+
+```
+<template>
+  <div>
+    <h1>接收查询参数</h1>
+    <span>第一个参数：{{ $route.query.cid }}</span>
+    <span>第二个参数：{{ $route.query.gid }}</span>
+  </div>
+</template>
+
+```
+
+
+
+| 路径                   | 对应文件        | 页面中接受                          |
+| ---------------------- | --------------- | ----------------------------------- |
+| /goods?cid=100         | pages/goods.vue | $route.query.cid                    |
+| /goods?cid=100&gid=200 | pages/goods.vue | $route.query.cid   $route.query.gid |
+
+
+
+##### 总结
+
+​	使用区别：
+
+- ​	查询参数？ 不利于SEO，百度在抓取我们页面时，如果用？只会抓取一个页面
+
+​			content?id=1
+
+​			content?id=2
+
+​			content?id=3
+
+- ​	推荐使用路径参数
+
+
+
+### 9.asyncData
+
+ Nuxt.js 扩展了Vue.js ，增加了一个叫 asyncData 的方法，使得我们可以在设置组件数据之前异步获取或处理数据。
+
+#### 1.asyncData函数什么时候用？
+
+- 只能用在页面文件中（page目录下的文件中）
+- 在获取页面初始化异步数据时使用
+
+#### 2.为什么使用它？
+
+在这里获取的数据会显示在页面源代码中，有利于SEO
+
+#### 3.有哪些特点
+
+- 需要return 一个数据，然后这个数据可以在页面中使用
+- 有很多参数：比如query.params, route 等
+- 它可以在服务端或路由更新之前被调用
+  - asyncData 函数默认在服务端渲染
+  - asyncData 函数在当前所在页面更新后在服务端渲染
+  - asyncData 函数在路由跳转时在客户端渲染
+- 可用使用nuxt 提供的 api ，process.server 判断是否是服务端  true:服务端 false:客户端
+- asyncData 只能使用在页面组件
+
+​		
+
+#### 4.使用方式
+
+#### 4.1 return数据
+
+```vue
+<template>
+  <div class="home">
+    <h1>{{ msg }}</h1>
+  </div>
+</template>
+
+<script>
+export default {
+  //会把返回的数据合并到data中
+  asyncData() {
+    return {
+      msg: "Hello World!",
+    };
+  },
+};
+</script>
+
+```
+
