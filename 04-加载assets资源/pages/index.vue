@@ -1,10 +1,10 @@
 <template>
   <div class="home">
     <div>
-      <h1>static目录下的图片资源</h1>
+      <h1>assets目录下的图片资源</h1>
 
       <h3>img标签显示图片</h3>
-      <img src="/images/1.jpg" />
+      <img src="~assets/images/1.jpg" />
 
       <h3>class显示图片</h3>
       <div class="picimg"></div>
@@ -22,7 +22,7 @@ export default {
       backgroundImage: {
         width: "100px",
         height: "200px",
-        background: `url(${require("~/static/images/1.jpg")})`,
+        background: `url(${require("~/assets/images/1.jpg")})`,
         backgroundSize: "contain",
       },
     };
@@ -37,7 +37,7 @@ export default {
 .picimg {
   width: 100px;
   height: 200px;
-  background: url("/images/1.jpg") no-repeat;
+  background: url("~assets/images/1.jpg") no-repeat;
   background-size: contain;
 }
 </style>

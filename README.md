@@ -236,13 +236,14 @@ export default {
   - asyncData 函数在当前所在页面更新后在服务端渲染
   - asyncData 函数在路由跳转时在客户端渲染
 - 可用使用nuxt 提供的 api ，process.server 判断是否是服务端  true:服务端 false:客户端
-- asyncData 只能使用在页面组件
+- asyncData 只能使用在页面组件 
+- asyncData参数1：对象 context 包含 isDev, route, store, env, params, query, req, res,redirect,error,
 
 ​		
 
 #### 4.使用方式
 
-#### 4.1 return数据
+##### 4.1 return数据
 
 ```vue
 <template>
@@ -264,3 +265,202 @@ export default {
 
 ```
 
+
+
+##### 4.2 asyncData参数
+
+```vue
+<script>
+export default {
+  asyncData({
+    isDev,
+    route,
+    store,
+    env,
+    params,
+    query,
+    req,
+    res,
+    redirect,
+    error,
+  }) {
+    console.log("isDev", isDev);
+    console.log("route", route);
+    console.log("store", store);
+    console.log("env", env);
+    console.log("params", params);
+    console.log("query", query);
+    console.log("req", req);
+    console.log("res", res);
+    console.log("redirect", redirect);
+    console.log("error", error);
+  },
+};
+</script>
+
+```
+
+##### 4.3 asyncData处理异步数据
+
+方式一 async await
+
+```
+<script>
+import axios from "axios";
+export default {
+  async asyncData() {
+    const {
+      data: { data: topics },
+    } = await axios.get("https://cnodejs.org/api/v1/topics");
+    return {
+      topics,
+    };
+  },
+};
+</script>
+```
+
+方式二 返回promise
+
+```
+<script>
+import axios from "axios";
+export default {
+  data() {
+    return {
+      name: "nuxt",
+    };
+  },
+  asyncData() {
+   //方式二 返回promise
+    return axios.get("https://cnodejs.org/api/v1/topics").then((res) => {
+      return {
+        topics: res.data.data,
+      };
+    });
+  },
+};
+</script>
+```
+
+
+
+### 10.加载资源
+
+#### 10.1 使用assets
+
+```vue
+<template>
+  <div class="home">
+    <div>
+      <h1>assets目录下的图片资源</h1>
+
+      <h3>img标签显示图片</h3>
+      <img src="~assets/images/1.jpg" />
+
+      <h3>class显示图片</h3>
+      <div class="picimg"></div>
+
+      <h3>style显示图片</h3>
+      <div :style="backgroundImage"></div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      backgroundImage: {
+        width: "100px",
+        height: "200px",
+        background: `url(${require("~/assets/images/1.jpg")})`,
+        backgroundSize: "contain",
+      },
+    };
+  },
+  asyncData() {
+    return {};
+  },
+};
+</script>
+
+<style>
+.picimg {
+  width: 100px;
+  height: 200px;
+  background: url("~assets/images/1.jpg") no-repeat;
+  background-size: contain;
+}
+</style>
+
+```
+
+#### 10.2 使用static
+
+```vue
+<template>
+  <div class="home">
+    <div>
+      <h1>static目录下的图片资源</h1>
+
+      <h3>img标签显示图片</h3>
+      <img src="/images/1.jpg" />
+
+      <h3>class显示图片</h3>
+      <div class="picimg"></div>
+
+      <h3>style显示图片</h3>
+      <div :style="backgroundImage"></div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      backgroundImage: {
+        width: "100px",
+        height: "200px",
+        background: `url(${require("~/static/images/1.jpg")})`,
+        backgroundSize: "contain",
+      },
+    };
+  },
+  asyncData() {
+    return {};
+  },
+};
+</script>
+
+<style>
+.picimg {
+  width: 100px;
+  height: 200px;
+  background: url("/images/1.jpg") no-repeat;
+  background-size: contain;
+}
+</style>
+
+```
+
+#### 总结
+
+**assets目录**
+
+- assets目录，会被webpack打包
+- 访问路径：~/assets/路径
+- 使用require时，require（~/assets/路径）
+
+
+
+**static目录**
+
+- static目录，不会被webpack打包
+- 访问路径：/images/路径             （images是static下的文件夹）
+- 使用require时，require（~/static/路径）
+
+
+
+使用style时， 不管是assets 还是 static 在使用 require 都需要使用 ~/路径
