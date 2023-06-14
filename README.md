@@ -464,3 +464,42 @@ export default {
 
 
 使用style时， 不管是assets 还是 static 在使用 require 都需要使用 ~/路径
+
+
+
+### 11.less
+
+#### 11.1 安装
+
+使用yarn/npm 安装 less
+
+```
+yarn add less less-loader@7.3.0
+```
+
+安装 @nuxtjs/style-resources
+
+```
+yarn add @nuxtjs/style-resources
+```
+
+#### 11.2 创建文件
+
+assets/less/variables.less  写变量
+
+assets/less/base.less  写公共样式
+
+#### 11.3 配置 nuxt.config.js
+
+```js
+css: ["~/assets/less/base.less"],
+buildModules: [
+    '@nuxtjs/style-resources' //可以省去导入less操作
+],
+//配置css预处理全局变量
+styleResources: {
+    less: ["./assets/less/variables.less"],
+},
+```
+
+ 
