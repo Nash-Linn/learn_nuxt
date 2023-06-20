@@ -1,14 +1,12 @@
 <template>
-  <div class="home">
-    <h1>Home Transition</h1>
+  <div class="fade">
+    <h1>fade Transition</h1>
   </div>
 </template>
 
 <script>
 export default {
-  asyncData() {
-    return {};
-  },
+  middleware: "auth3",
 };
 </script>
 

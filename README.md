@@ -632,7 +632,7 @@ pages 下创建 parent.vue
       <nuxt-child />
     </nav>
   </div>
-</template
+</template>
 ```
 
 在parent 下创建 child1.vue
@@ -659,3 +659,310 @@ pages 下创建 parent.vue
 
 ```
 
+
+
+# 12.路由过渡和动画
+
+##         12.1 概念
+
+Nuxt.js 使用vue [过渡组件](http://vuejs.org/v2/guide/transitions.html#Transitioning-Single-Elements-Components)在路由切换时创建过渡/动画。
+
+
+
+## 12.2 特点
+
+- Nuxt.js 默认过渡名称是 `page`
+- 设置自定义动画， 使用transition属性在页面中自定义动画名称
+- 设置动画样式注意以自定义的动画名称开头设置，比如bounce
+
+
+
+
+css过度:
+
+![image-20211003000021842](README.assets/image-20211003000021842.png).
+
+实现思路：
+
+1. 创建布局文件layouts/defaults.vue 存放导航
+2. pages目录下分别创建三个页面组件
+3. 路由匹配的页面组件会自动添加类名  .page-enter .page-enter-active  .page-leave-to  .page-leave-active  给其添加样式  
+
+### 12.2.1 过渡
+
+1.用的vue过渡，默认类名是 .page开头
+
+2.成对出现
+
+	1.  .page-enter .page-leave-to 
+	1.  .page-enter-active  .page-leave-active
+
+
+
+### 12.2.2 动画
+
+1.使用transtion属性在页面组件指定自定义动画名称
+
+2.在布局文件 给xxx-enter-active , xxx-leave-active 
+
+
+
+
+
+页面代码
+
+layouts/default.vue
+
+```vue
+<template>
+  <div>
+    <nav>
+      <ul>
+        <li><nuxt-link to="/">Home</nuxt-link></li>
+        <li><nuxt-link to="/fade">fade</nuxt-link></li>
+        <li><nuxt-link to="/bounce">bounce</nuxt-link></li>
+      </ul>
+    </nav>
+    <main>
+      <nuxt />
+    </main>
+  </div>
+</template>
+
+<script>
+export default {};
+</script>
+<style scoped>
+/* 过度开始前和过度结束后隐藏 */
+.page-enter,
+.page-leave-to {
+  opacity: 0;
+}
+
+/* 过度激活状态显示 */
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 0.5s;
+}
+
+/* 自定义动画 动画进入前*/
+.bounce-enter-active {
+  transform-origin: top;
+  animation: bounce-in 0.8s;
+}
+
+/* 动画结束后 */
+.bounce-leave-active {
+  transform-origin: top;
+  animation: bounce-out 0.5s;
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+  }
+
+  50% {
+    transform: scale(2);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes bounce-out {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(2);
+  }
+
+  100% {
+    transform: scale(0);
+  }
+}
+</style>
+```
+
+
+
+pages/index.vue
+
+```vue
+<template>
+  <div class="home">
+    <h1>Home Transition</h1>
+  </div>
+</template>
+```
+
+pages/fade.vue
+
+```vue
+<template>
+  <div class="fade">
+    <h1>fade Transition</h1>
+  </div>
+</template>
+```
+
+对bounce使用动画 需在 export default  中添加 transition: "bounce"
+
+pages/bounce.vue
+
+```vue
+<template>
+  <div class="bounce">
+    <h1>bounce Transition</h1>
+  </div>
+</template>
+
+<script>
+export default {
+  transition: "bounce",
+};
+</script>
+```
+
+
+
+
+
+# 13.中间件
+
+## 13.1 概念
+
+  就是一个函数，会在每一次请求路由之前被执行
+
+## 13.2 应用场景
+
+​	 可以用来做权限验证等功能~
+
+## 13.3 使用中间件注意事项
+
+- 中间件会在客户端和服务端都执行，所以写代码时要判断环境 process.server /process.static
+- 中间件在项目启动或者刷新页面都会被执行，运行在服务端
+- 只有客户端能操作浏览器
+- 如果服务端属于node环境不能操作浏览器，不能使用localStorage等浏览器专用的API
+
+
+
+## 13.4 中间件分类
+
+**1.全局中间件，整个项目都可以使用**
+
+
+
+nuxt.config.js
+
+```
+export default {
+  //注册全局中间件
+  router: {
+    middleware: "auth",
+  },
+}
+```
+
+
+
+**2.布局中间件**
+
+创建文件
+
+middleware/auth2.js
+
+```
+export default function () {
+  console.log("auth2 中间件执行");
+}
+```
+
+在布局文件中注册   middleware: "auth2",
+
+layouts/default.vue
+
+```vue
+<template>
+  <div>
+    <nav>
+      <ul>
+        <li><nuxt-link to="/">Home</nuxt-link></li>
+        <li><nuxt-link to="/fade">fade</nuxt-link></li>
+      </ul>
+    </nav>
+    <main>
+      <nuxt />
+    </main>
+  </div>
+</template>
+
+<script>
+export default {
+  middleware: "auth2",
+};
+</script>
+```
+
+**3.页面中间件**
+
+创建文件
+
+middleware/auth3.js
+
+```vue
+export default function () {
+  console.log("auth3 中间件执行");
+}
+```
+
+在页面文件中注册   middleware: "auth2",
+
+pages/fade.vue
+
+```vue
+<template>
+  <div class="fade">
+    <h1>fade Transition</h1>
+  </div>
+</template>
+
+<script>
+export default {
+  middleware: "auth3",
+};
+</script>
+```
+
+
+
+
+
+## 13.5 执行顺序
+
+1. `nuxt.config.js`
+2. 匹配布局
+3. 匹配页面
+
+
+
+# 14.插件
+
+插件就是一个```js```文件，这个文件会在每次刷新页面时都会在服务器和客户端执行一遍，在路由切换时不会触发该插件的执行。
+
+
+
+## 14.1 用途
+
+- 当我们需要使用一些第三方的库时(```ElementUI,Vant, axios```等 )，通过插件来集成到```Vue```中
+
+## 14.2 插件分类
+
+1. 默认插件，客户端和服务器端都会自动执行
+   1. 注入插件: 插件注入后，可以在整个应用程序中都可以使用，典型应用场景是```axios```的封装
+   2. ```vue```插件: 插件出入后，可以结合```vue```进行辅助开发， 典型应用场景是```vant，element等ui库```
+2. 客户单插件： 只在客户端自动执行的插件
+3. 服务端插件： 只在服务端自动执行的插件
