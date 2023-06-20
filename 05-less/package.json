@@ -19,10 +19,5 @@
     "vue-server-renderer": "^2.7.10",
     "vue-template-compiler": "^2.7.10"
   },
-  "devDependencies": {
-    "pug": "^3.0.2",
-    "pug-plain-loader": "^1.1.0",
-    "sass": "^1.63.4",
-    "sass-loader": "10"
-  }
+  "devDependencies": {}
 }

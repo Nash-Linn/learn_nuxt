@@ -1,23 +1,19 @@
+# 1.Nust 脚手架项目
 
-
-# learn_nuxt
-
-## 1.Nust 脚手架项目
-
-### 1.安装
+## 1.1安装
 
 ```
 yarn create nuxt-app 项目名
 ```
 
-### 2.启动
+## 1.2启动
 
 ```
 yarn install
 yarn dev
 ```
 
-### 3.客户端和服务端渲染区别
+## 1.3客户端和服务端渲染区别
 
 1.客户端渲染的网站，是要经过JS动态生成HTML和内容。但是爬虫在爬取网站时，JS无法执行,导致爬虫无法收录网页的内容，不利于SEO优化
 
@@ -25,7 +21,7 @@ yarn dev
 
 
 
-### 4.nuxt脚手架项目
+## 1.4nuxt脚手架项目
 
 1.components目录下的组件，在pages目录中的页面组件中直接使用
 
@@ -39,7 +35,7 @@ nuxt.config.js
 
 
 
-### 5.页面组成
+# 2.页面组成
 
 1. 布局文件： layouts/default.vue  默认布局文件就是 default.vue
 2. 布局文件中，使用  <Nuxt /> 占位  可以看成 vue-router
@@ -47,7 +43,7 @@ nuxt.config.js
 
 
 
-### 6.布局文件
+# 3.布局文件
 
 1.默认是default.vue。它是项目中所有页面的根组件
 
@@ -65,14 +61,14 @@ export default {
 
 
 
-### 7.error组件
+# 4.error组件
 
 1. 定义在layouts/error.vue , 作用：路由找不到时，显示一个错误页面，提升用户体验
 2. 要把 error组件看成页面组件，继承自 defalut.vue 布局，当然也可以使用自定义布局
 
 
 
-### 8.路由
+# 5.路由
 
 1.pages/xxx.vue 文件即路由, nuxt内置了vue-router 无需自己配置
 
@@ -100,9 +96,9 @@ export default {
 
    nuxt-link-exact-active 精确匹配
 
-   
 
-	#### 8.1路径和文件的关系
+
+## 5.1路径和文件的关系
 
 不需要自己写配置文件，直接和文件名对应
 
@@ -113,14 +109,14 @@ export default {
 | pages/user/order.vue | /user/oder           |
 | pages/good/index.vue | /good(省略index.vue) |
 
-#### 8.2  路由参数
+## 5.2  路由参数
 
 很多时候我们需要在路由上传参数，路由上的参数有两种
 
 - 路径参数：  /goods/100
 - 查询参数：  /goods?id=100
 
-##### 8.2.1 路径参数
+### 5.2.1 路径参数
 
 为了能够配置路径参数，我们需要以 _ 作为文件名的前缀
 
@@ -166,7 +162,7 @@ export default {
 
 
 
-##### 8.2.1 查询参数
+### 5.2.2 查询参数
 
 ```
   <h4>查询参数传递</h4>
@@ -214,20 +210,20 @@ export default {
 
 
 
-### 9.asyncData
+# 6.asyncData
 
  Nuxt.js 扩展了Vue.js ，增加了一个叫 asyncData 的方法，使得我们可以在设置组件数据之前异步获取或处理数据。
 
-#### 1.asyncData函数什么时候用？
+## 6.1 asyncData函数什么时候用？
 
 - 只能用在页面文件中（page目录下的文件中）
 - 在获取页面初始化异步数据时使用
 
-#### 2.为什么使用它？
+## 6.2 为什么使用它？
 
 在这里获取的数据会显示在页面源代码中，有利于SEO
 
-#### 3.有哪些特点
+## 6.3 有哪些特点
 
 - 需要return 一个数据，然后这个数据可以在页面中使用
 - 有很多参数：比如query.params, route 等
@@ -241,9 +237,9 @@ export default {
 
 ​		
 
-#### 4.使用方式
+## 6.4 使用方式
 
-##### 4.1 return数据
+### 6.4.1 return数据
 
 ```vue
 <template>
@@ -267,7 +263,7 @@ export default {
 
 
 
-##### 4.2 asyncData参数
+### 6.4.2 asyncData参数
 
 ```vue
 <script>
@@ -300,7 +296,7 @@ export default {
 
 ```
 
-##### 4.3 asyncData处理异步数据
+### 6.4.3 asyncData处理异步数据
 
 方式一 async await
 
@@ -345,9 +341,9 @@ export default {
 
 
 
-### 10.加载资源
+# 7.加载资源
 
-#### 10.1 使用assets
+## 7.1 使用assets
 
 ```vue
 <template>
@@ -396,7 +392,7 @@ export default {
 
 ```
 
-#### 10.2 使用static
+## 7.2 使用static
 
 ```vue
 <template>
@@ -445,7 +441,7 @@ export default {
 
 ```
 
-#### 总结
+### 总结
 
 **assets目录**
 
@@ -467,9 +463,9 @@ export default {
 
 
 
-### 11.less
+# 8.less
 
-#### 11.1 安装
+## 8.1 安装
 
 使用yarn/npm 安装 less
 
@@ -483,13 +479,13 @@ yarn add less less-loader@7.3.0
 yarn add @nuxtjs/style-resources
 ```
 
-#### 11.2 创建文件
+## 8.2 创建文件
 
 assets/less/variables.less  写变量
 
 assets/less/base.less  写公共样式
 
-#### 11.3 配置 nuxt.config.js
+## 8.3 配置 nuxt.config.js
 
 ```js
 css: ["~/assets/less/base.less"],
@@ -503,3 +499,163 @@ styleResources: {
 ```
 
  
+
+# 9.scss
+
+## 9.1 安装
+
+使用yarn/npm 安装 sass
+
+```
+yarn add -D sass sass-loader@10 fibers
+```
+
+安装 @nuxtjs/style-resources
+
+```
+yarn add @nuxtjs/style-resources
+```
+
+## 9.2 创建文件
+
+assets/scss/variables.scss写变量
+
+assets/scss/base.scss写公共样式
+
+## 9.3 配置 nuxt.config.js
+
+```js
+css: ["~/assets/scss/base.scss"],
+buildModules: [
+    '@nuxtjs/style-resources' //可以省去导入sass操作
+],
+//配置css预处理全局变量
+styleResources: {
+    scss: ["./assets/scss/variables.sassscss
+},
+```
+
+ 
+
+# 10.pug
+
+html 模板，简化标签写法
+
+## 10.1 安装
+
+```
+yarn add -D pug pug-plain-loader
+```
+
+## 10.2 使用
+
+```vue
+<template lang="pug">
+  div 
+      h1 Hello World
+      p this page use pug
+      img(src="~/assets/images/1.jpg" )
+</template>
+```
+
+
+
+# 11.多级路由
+
+在 layouts 创建 default.vue
+
+```vue
+<template>
+  <div>
+    <nav>
+      <ul>
+        <!-- <li><nuxt-link to="/">Home</nuxt-link></li>
+        <li><nuxt-link to="/parent">Parent</nuxt-link></li> -->
+
+        <li><a :class="{ active: flag }" @click="go('/')">Home</a></li>
+        <li>
+          <a :class="{ active: !flag }" @click="go('/parent')">Parent</a>
+        </li>
+      </ul>
+    </nav>
+    <main>
+      <nuxt />
+    </main>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      flag: false,
+    };
+  },
+  methods: {
+    go(path) {
+      this.flag = !this.flag;
+      this.$router.push(path);
+    },
+  },
+};
+</script>
+<style scoped>
+.active {
+  color: red !important;
+}
+</style>
+
+```
+
+pages 下 创建 index.vue
+
+```
+<template>
+  <div class="home">
+    <h1>Hello World</h1>
+  </div>
+</template>
+```
+
+pages 下创建 parent.vue
+
+```
+<template>
+  <div>
+    <h1>parent页面（一级路由）</h1>
+    <nav>
+      <ul>
+        <li><nuxt-link to="/parent/child1">Child1</nuxt-link></li>
+        <li><nuxt-link to="/parent/child2">Child2</nuxt-link></li>
+      </ul>
+      <!-- 占位 当匹配到二级路由 对应的页面显示在下面-->
+      <nuxt-child />
+    </nav>
+  </div>
+</template
+```
+
+在parent 下创建 child1.vue
+
+```
+<template>
+  <div>
+    <h1>Child1</h1>
+    <p>{{ $route.path }}</p>
+  </div>
+</template>
+
+```
+
+在parent 下创建 child2.vue
+
+```
+<template>
+  <div>
+    <h1>Child2</h1>
+    <p>{{ $route.path }}</p>
+  </div>
+</template>
+
+```
+

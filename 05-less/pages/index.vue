@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <h1>Hello World</h1>
+    <h1>Home</h1>
   </div>
 </template>
 
@@ -12,8 +12,8 @@ export default {
 };
 </script>
 
-<style lang="scss" scope>
+<style lang="less" scope>
 h1 {
-  color: $primary;
+  color: @primary;
 }
 </style>
