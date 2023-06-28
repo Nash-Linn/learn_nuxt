@@ -1,8 +1,8 @@
 <template>
   <div>
     <ul>
-      <li>
-        {{ goods }}
+      <li v-for="(item, index) in $store.state.topics" :key="index">
+        <nuxt-link to="/detail">{{ item.title }}</nuxt-link>
       </li>
     </ul>
   </div>
@@ -10,11 +10,18 @@
 
 <script>
 export default {
-  data() {
+  //asyncData 只能在页面中使用
+  asyncData() {
+    console.log("1111");
     return {
-      goods: "电子产品",
+      topics: [],
     };
+  },
+
+  //fetch 可以在组件中使用，也可以在页面中使用
+  async fetch() {
+    const { data: topics } = await this.$api.getTopics("/topics");
+    this.$store.commit("updateTopics", topics);
   },
 };
 </script>
-<style lang="css" scoped></style>

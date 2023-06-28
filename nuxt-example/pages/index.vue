@@ -1,15 +1,13 @@
 <template>
-  <div class="home">
-    <h1>Home Transition</h1>
+  <div>
+    <Goods />
   </div>
 </template>
 
 <script>
 export default {
-  asyncData() {
+  data() {
     return {};
   },
 };
 </script>
-
-<style lang="scss" scope></style>

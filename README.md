@@ -966,3 +966,458 @@ export default {
    2. ```vue```插件: 插件出入后，可以结合```vue```进行辅助开发， 典型应用场景是```vant，element等ui库```
 2. 客户单插件： 只在客户端自动执行的插件
 3. 服务端插件： 只在服务端自动执行的插件
+
+
+
+## 14.3插件使用
+
+方法1
+
+在plugins下创建test.js
+
+```
+export default () => {
+  console.log("test插件执行了");
+};
+```
+
+在nuxt.config.js 中注册
+
+```
+export default {
+   plugins: [
+    // "~/plugins/test.js" //默认插件
+    {
+      src: "~/plugins/test.js", //不指定mode，默认在客户端和服务端都使用
+    },
+    {
+      src: "~/plugins/test.js",
+      mode: "client", //仅在客户端使用
+    },
+    {
+      src: "~/plugins/test.js",
+      mode: "server", //仅在服务端使用
+    },
+  ],
+}
+```
+
+方法2
+
+在创建插件时，使用特定命名
+
+如客户端插件就使用XXX.client.js
+
+服务端插件使用XXX.server.js
+
+然后在nuxt.config.js 中注册
+
+```
+export default {
+   plugins: [
+    {
+      src: "~/plugins/test.client.js",
+    },
+    {
+      src: "~/plugins/test.server.js",
+    },
+  ],
+}
+```
+
+
+
+
+
+**nuxt中使用vue插件**
+
+1.安装
+
+```
+npm install --save v-tooltip
+```
+
+2.创建插件文件 tooltip.js
+
+```
+import Vue from "vue";
+import toolTip from "v-tooltip";
+
+Vue.use(toolTip);
+```
+
+3.在nuxt.config.js 中注册
+
+
+
+**axios插件封装**
+
+1.plugins/axios.js
+
+```
+import axios from "axios";
+
+export default (context, inject) => {
+  axios.defaults.baseURL = "https://cnodejs.org/api/v1";
+  //注入插件
+  inject("api", {
+    /**
+     * 获取主题列表
+     * @param {String} path
+     * @returns promise 
+     */
+    getTopics(path) {
+      return axios.get(path);
+    },
+  });
+};
+```
+
+
+
+2.在nuxt.config.js 中注册
+
+3.使用
+
+```
+  async asyncData({ app }) {
+    const {
+      data: { data: topics },
+    } = app.$api.getTopics("/topics");
+
+    return {
+      topics,
+    };
+  },
+```
+
+
+
+使用 vue 组件库 vant
+
+1.下载
+
+```
+# Vue 3 项目，安装最新版 Vant
+npm i vant
+
+# Vue 2 项目，安装 Vant 2
+npm i vant@latest-v2
+```
+
+2.在plugins/vant.js  将 vant 挂载到vue实例上
+
+```
+import Vue from "vue";
+
+import Vant from "vant";
+
+// 2. 引入组件样式
+import "vant/lib/index.css";
+
+Vue.use(Vant);
+
+```
+
+3.在nuxt.config.js 中注册
+
+4.在页面中使用
+
+
+
+
+
+# 15.vuex
+
+## 15.1 目标
+
+开发中，项目会有很多页面，页面之间需要共享数据，共享数据就需要放在vuex中，集中管理公共数据
+
+## 15.2 vuex组成
+
+1.stote 存储数据
+
+2.mutations 存放同步修改数据方法
+
+3.actions 存放异步操作方法
+
+4.getter 访问器
+
+
+
+## 15.3 总结
+
+nuxt 内置 vuex ，我们只需要按照 nuxt 中  vuex 创建或者配置规则直接使用vuex
+
+
+
+## 15.4 vuex的基本使用
+
+vuex 需要创建的文件，全部放在store 目录下，store目录下的 xxx.js 写vuex 中 state，mutations，actions，getters
+
+### 1.目标
+
+实现一个计数器
+
+### 2.实现思路
+
+1.创建 store/index.js
+
+2.定义state mutations actions
+
+3.页面使用store数据
+
+4.在page/index.vue 创建两个方法，完成同步和异步的修改
+
+
+
+### 3.总结
+
+1.nuxt已经内置 vuex ，我们按照规则在 store/index.js 定义 state，mutations，actions 然后导出
+
+2.state 必须是函数返回一个新对象，避免引用类型数据修改产生的相互影响
+
+3.在页面中，我们使用 this.$store.commit('同步方法'，参数) 完成同步数据修改
+
+4.在页面中，我们使用 this.$store.dispatch('异步方法'，参数) 完成异步数据修改
+
+5.在 mutations actions 中定义的方法，都是参数2 接收参数
+
+
+
+
+
+## 15.5 vuex 中的辅助工具
+
+### 1.目标
+
+掌握vuex 中 mapState，mapMutations, mapActions
+
+
+
+### 2.思路
+
+1.pages/index.vue 使用 mapState，mapMutations, mapActions
+
+2.nuxt内置vuex，直接在vuex这个包中导入
+
+3.在computed使用结构 mapState
+
+4.在methods 中结构 mapMutations，mapActions
+
+
+
+### 3.总结
+
+1.mapState，mapMutations, mapActions 都是vuex内置的辅助方法
+
+2.mapState，mapMutations, mapActions 三者调用之后都返回一个对象，使用解构的方式，解构所有的属性
+
+结构后
+
+```
+...mapState(['count']) ====> 
+
+相当于
+{
+	count:function(){
+		return this.$store.state.count
+	}
+}
+```
+
+
+
+使用
+
+```
+import { mapState, mapMutations, mapActions } from "vuex";
+export default {
+  computed: {
+    // mapState 调用之后返回一个对象
+    ...mapState(["count"]),
+  },
+  methods: {
+    ...mapMutations(["increment"]),
+    ...mapActions(["asyncIncrement"]),
+  },
+};
+```
+
+
+
+## 15.6 vuex 模块化使用
+
+### 1.目标
+
+ 我们项目中有很多页面，公共的数据都放在一起，导致数据很臃肿，我们需要对数据进行拆分多个子模块，优势让vuex 数据管理更加清晰
+
+
+
+### 2.实现
+
+1. store目录下 创建 index.js  todolist.js文件，文件名就是模块名字
+2. todolist.js 定义state 存储列表
+3. index.js 定义state 存储数字
+4. 在页面中分别使用 index todolist中的数据
+
+
+
+### 3.总结
+
+1.页面中使用模块的数据 $store.state.模块名.属性
+
+2.nuxt会根据store目录下的文件名，来自动帮你根据文件名生成对应的模块
+
+- 譬如：store/list.js    ===> list模块 访问时，  $store.state.list.属性
+
+3.store/index.js 是默认的，我们在访问 index.js 这个模块时，无需加模块名，直接访问
+
+
+
+
+
+## 15.7 案例
+
+### 1.目标
+
+实现在一个模块中生成一个随机数 并加入另一个模块
+
+### 2.实现
+
+1.在page/index.vue 绑定一个点击事件
+
+2.在methods 里面创建一个方法 生成一个 0-10的随机数
+
+3.在todolist模块创建一个mutations 完成数据同步修改
+
+4.在页面中点击事件触发，提交todolist模块的mutations,完成集合新增数据
+
+### 3.总结
+
+1.随机数生成
+
+​	1. Math.floor(Math.random() * (max - min + 1) + min);
+
+​	2.vuex中各个模块用法一致
+
+​	3.除了index模块，同步修改：this.$store.commit('模块名/方法名')
+
+
+
+
+
+# 16. Loading
+
+## 1.目标
+
+在开发网站时，出现接口在指定时间内没有返回数据，页面是空白的，为提升用户体验，增加loading加载提示
+
+## 2.实现
+
+1.  在components/LoadingBar.vue ,定义开始加载，结束加载两个方法，给外部使用
+
+2.  nuxt.config.js 配置loading
+
+3.  在页面中使用
+
+
+
+## 3.总结
+
+在页面中使用 this.$nextTick 在回调里使用 loading 组件提供的 start 和 finish 保证dom加载完毕
+
+
+
+
+
+# 17.Head配置
+
+我们在开发网站，为了提升SEO优化，，除了SSR，还可以设置网页TDK
+
+T：title
+
+D：description
+
+K：keywords
+
+
+
+1.在 nuxt.config.js 配置head
+
+```
+export default {
+	  head: {
+    title: "nuxt-example",
+    htmlAttrs: {
+      lang: "en",
+    },
+    meta: [
+      { charset: "utf-8" },
+      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { hid: "description", name: "description", content: "" },
+      { name: "Keywords", content: "Keywords" },
+      { name: "format-detection", content: "telephone=no" },
+    ],
+    link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
+  },
+}
+```
+
+
+
+2.在页面中进行配置
+
+```
+  // 在页面中配置TDK，注意hid属性，覆盖全局配置
+  head() {
+    return {
+      title: this.title,
+      meta: [
+        {
+          hid: "description",
+          name: "description",
+          content: "My custom description",
+        },
+      ],
+    };
+  },
+```
+
+
+
+1.TDK的配置，需要在全局nuxt.config.js 中 或者 页面中进行配置 
+
+2.hid属性用于页面中头部配置覆盖全局头部
+
+
+
+
+
+# 18.fetch
+
+## 1.目标
+
+开发中会经常调用接口，返回的数据需要公共使用，需要把数据存到vuex中，可以在fetch中完成
+
+## 2.实现
+
+1.store/index.js 定义 state mutations
+
+2.plugins/axios.js 完成axios封装
+
+3.在组件中使用fetch把接口返回的数据填充到vue中
+
+4.页面中使用vuex提供数据，渲染页面
+
+## 3.总结
+
+1.把接口返回的数据填充到vuex，可以在fetch中完成，也可以在asyncData中，都可以完成服务端渲染
+
+2.fetch 可以使用在任意组件，而asyncData只能使用在页面组件
+
+3.如果只是客户端渲染，只需要在mounted中
+
+
+
+18.1 fetch 和 asyncData 的区别
