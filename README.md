@@ -1396,11 +1396,13 @@ export default {
 
 # 18.fetch
 
-## 1.目标
+## 18.1 nuxt中fetch
+
+### 1.目标
 
 开发中会经常调用接口，返回的数据需要公共使用，需要把数据存到vuex中，可以在fetch中完成
 
-## 2.实现
+### 2.实现
 
 1.store/index.js 定义 state mutations
 
@@ -1410,7 +1412,7 @@ export default {
 
 4.页面中使用vuex提供数据，渲染页面
 
-## 3.总结
+### 3.总结
 
 1.把接口返回的数据填充到vuex，可以在fetch中完成，也可以在asyncData中，都可以完成服务端渲染
 
@@ -1420,4 +1422,69 @@ export default {
 
 
 
-18.1 fetch 和 asyncData 的区别
+## 18.2 fetch 和 asyncData 的区别
+
+### 1.目标
+
+数据分 vuex中公共数据还有页面中的数据，对于接口返回的数据处理，存放到vuex中就使用fetch，否则使用asyncData
+
+
+
+### 2.实现
+
+在页面中同时使用 fetch  asyncData
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
