@@ -11,10 +11,5 @@ export default (context, inject) => {
         res.json()
       );
     },
-    getDetail(path) {
-      return fetch(`https://cnodejs.org/api/v1${path}`).then((res) =>
-        res.json()
-      );
-    },
   });
 };

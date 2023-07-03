@@ -12,6 +12,7 @@
 export default {
   //asyncData 只能在页面中使用
   asyncData() {
+    console.log("1111");
     return {
       topics: [],
     };
