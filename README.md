@@ -1495,9 +1495,9 @@ Nuxt为了实现SSR，在原VUE中添加了一些额外的功能，这些功能�
 3.配置nginx
 
 		1. nginx -t
-  		2. 启动nginx
-       		1.  nginx -c 安装路径   nginx-c conf/nginx.conf
-       		2. 访问网站 http://localhost/
+		2. 启动nginx
+	   		1.  nginx -c 安装路径   nginx-c conf/nginx.conf
+	   		2. 访问网站 http://localhost/
 
 ```
 @echo off
@@ -1566,8 +1566,6 @@ yarn generate
 
 # 21.权限校验
 
-1.实现
-
 1.pages 新建三个页面 index.vue  login.vue my.vue
 
 2.两个接口 登录 退出登录
@@ -1579,3 +1577,96 @@ yarn generate
 5.首页根据 vuex 中是否读取到用户信息来判断显示对应的内容
 
 6.用户退出登录，要把 vuex 中的数据清空
+
+
+
+## 21.1.nuxtServerInit
+
+### 1.目标
+
+nuxtServerInit解决问题：vuex可以保证项目每个页面都可以共享数据，但是页面刷新之后，vuex数据清空，所以要解决这个问题，就需要使用nuxtServerInit
+
+### 2.实现
+
+1.store/index.js 中创建actions，把 nuxtServerInit 应用
+
+ 	特点：nuxtServerInit只能在store/index.js 中actions使用
+
+2.nuxtServerInit只能运行在服务端且只执行一次，可以通过相关参数读取到 请求参数
+
+```
+const actions = {
+  // 1.  vuex的用户信息数据持久化存储
+  nuxtServerInit({ commit }, { req }) {
+    console.log(req.headers.cookie);
+  },
+};
+```
+
+## 21.2 权限校验完善
+
+使用 nuxtServerInit 持久化 vuex 中的用户信息
+
+
+
+1.使用 js-cookie 包在登录时设置cookie，退出登录时，清空cookie
+
+```
+yarn add js-cookie
+```
+
+2.通过nuxtServerInit 参数2 解构出的req对象读取cookie
+
+3.使用cookieparser 包把 cookie 字符串转换成对象解构
+
+```
+yarn add cookieparser
+```
+
+
+
+page/login.vue 登录时，存储auth到cookie上
+
+```
+<template>
+  <div>
+    <p>用户名：<input type="text" /></p>
+    <p>密码：<input type="text" /></p>
+    <button @click="login">登录</button>
+  </div>
+</template>
+
+<script>
+import Cookie from "js-cookie";
+export default {
+  methods: {
+    login() {
+      setTimeout(() => {
+        const auth = "asdasdfdasdfsdagasdfsdfasd";
+        this.$store.commit("updateAuth", auth);
+        //存储Cookie
+        Cookie.set("auth", auth);
+        //跳转首页
+        this.$router.push("/");
+      }, 1000);
+    },
+  },
+};
+</script>
+```
+
+在 store/index.js  的actions中获取
+
+```
+const actions = {
+  // 1.  vuex的用户信息数据持久化存储
+  nuxtServerInit({ commit }, { req }) {
+    //1. 通过cookie 判断用户是否已经登录
+    if (req.headers.cookie) {
+      let cookie = cookieparser.parse(req.headers.cookie);
+      commit("updateAuth", cookie.auth);
+    }
+  },
+};
+```
+
