@@ -1670,3 +1670,174 @@ const actions = {
 };
 ```
 
+
+
+# 22.typescript 在nuxt 中的使用
+
+## 1.目标
+
+在nuxt项目中掌握ts的使用
+
+
+
+## 2.实现
+
+1.安装
+
+```
+yarn add vue-property-decorator vue-class-component
+```
+
+2.使用类创建组件
+
+3.在类中定义一个msg
+
+4.在首页模板中使用这个msg变量显示
+
+## 3.代码
+
+```
+<template>
+  <div>
+    {{ msg }}
+  </div>
+</template>
+
+<script lang="ts">
+import { Vue } from "vue-property-decorator";
+
+export default class PageIndex extends Vue {
+  msg: string = "hello nuxt-ts";
+}
+</script>
+```
+
+
+
+# 23.使用ts实现计数器
+
+## 1.目标
+
+使用ts类组件 实现加减
+
+
+
+## 2.实现
+
+1.创建类组件
+
+2.定义 count 变量，加减两个方法
+
+## 3.代码
+
+```
+<template>
+  <div>
+    <h1>count:{{ count }}</h1>
+    <button @click="increment">加</button>
+    <button @click="decrement">减</button>
+  </div>
+</template>
+
+<script lang="ts">
+import { Vue, Component } from "vue-property-decorator";
+
+@Component
+export default class PageIndex extends Vue {
+  count: number = 10;
+
+  increment() {
+    this.count++;
+  }
+
+  decrement() {
+    this.count--;
+  }
+}
+</script>
+```
+
+
+
+# 24.composition-api
+
+## 1.目标
+
+掌握在nuxt中使用vue3中的 composition-api
+
+
+
+## 2.实现
+
+1.安装
+
+**vue2.7+ 版本已经内置了该库， 该库需要配合 vue2.6+ 以下版本使用**
+
+```
+yarn add @vue/composition-api
+```
+
+2.在插件中注册
+
+plugins/composition-api.js
+
+```
+import Vue from "vue";
+import VueCompositionApi from "@vue/composition-api";
+
+Vue.use(VueCompositionApi);
+```
+
+nuxt.config.js
+
+```
+plugins: [
+  "@/plugins/composition-api"
+],
+```
+
+3.在页面中使用vue3 写法
+
+```
+<template>
+  <div>
+    {{ msg }}
+  </div>
+</template>
+
+<script lang="ts">
+import { defineComponent, ref } from "@vue/composition-api";
+
+export default defineComponent({
+  setup() {
+    const msg = ref("hello nuxt");
+
+    return {
+      msg,
+    };
+  },
+});
+</script>
+```
+
+
+
+所以在 2.7+的版本中可以直接使用 不需要安装插件
+
+```
+<template>
+  <div>
+    {{ msg }}
+  </div>
+</template>
+
+<script lang="ts" setup>
+  import {ref} from "vue"
+  const msg = ref("hello nuxt");
+</script>
+```
+
+
+
+
+
