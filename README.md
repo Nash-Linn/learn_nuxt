@@ -1839,5 +1839,73 @@ export default defineComponent({
 
 
 
+# 25.模块
+
+## 25.1 http 模块
+
+### 1.目标
+
+@nuxt/http  nuxt内置的http请求库
+
+### 2.实现
+
+1.安装
+
+```
+yarn add @nuxt/http
+```
+
+2.在nuxt.config.js 中配置
+
+```
+ modules: ["@nuxt/http"],
+```
+
+3.在页面中使用该模块，调用文档列表接口渲染页面
+
+```
+<template>
+  <div>
+    <ul>
+      <li v-for="(item, index) in topics" :key="index">
+        <nuxt-link :to="`/detail?id=${item.id}`">{{ item.title }}</nuxt-link>
+      </li>
+    </ul>
+  </div>
+</template>
+
+<script>
+export default {
+  async asyncData({ $http }) {
+    const { data: topics } = await $http.$get(
+      "https://cnodejs.org/api/v1/topics"
+    );
+    return {
+      topics,
+    };
+  },
+};
+</script>
+```
 
 
+
+
+
+## 25.2 axios模块
+
+### 1.目标
+
+使用nuxt内置的axios模块
+
+### 2.实现
+
+1.下载安装 @nuxt/axios
+
+2.nuxt.config.js 配置
+
+3.页面中使用，asyncData 函数解构出$axios
+
+
+
+在钩子函数中能通过this.$axios 去访问  拿不到this，通过钩子函数参数拿到
