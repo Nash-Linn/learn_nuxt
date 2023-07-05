@@ -1201,9 +1201,9 @@ vuex 需要创建的文件，全部放在store 目录下，store目录下的 xxx
 
 2.nuxt内置vuex，直接在vuex这个包中导入
 
-3.在computed使用结构 mapState
+3.在computed使用解构 mapState
 
-4.在methods 中结构 mapMutations，mapActions
+4.在methods 中解构 mapMutations，mapActions
 
 
 
@@ -1213,7 +1213,7 @@ vuex 需要创建的文件，全部放在store 目录下，store目录下的 xxx
 
 2.mapState，mapMutations, mapActions 三者调用之后都返回一个对象，使用解构的方式，解构所有的属性
 
-结构后
+解构后
 
 ```
 ...mapState(['count']) ====> 
@@ -1837,16 +1837,16 @@ export default defineComponent({
 所以在 2.7+的版本中可以直接使用 不需要安装插件
 
 ```
-<template>
-  <div>
-    {{ msg }}
-  </div>
-</template>
+    <template>
+      <div>
+        {{ msg }}
+      </div>
+    </template>
 
-<script lang="ts" setup>
-  import {ref} from "vue"
-  const msg = ref("hello nuxt");
-</script>
+    <script lang="ts" setup>
+      import {ref} from "vue"
+      const msg = ref("hello nuxt");
+    </script>
 ```
 
 
