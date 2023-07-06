@@ -483,6 +483,12 @@ module.exports.sports = async (ctx, next) => {
 
 
 
+### 1.5 一级分类接口用到的表
+
+一级接口，需要用到分类表 category，我们在letao中创建catogory表，然后插入测试数据
+
+
+
 创建数据库
 
 ```mysql
@@ -497,6 +503,682 @@ CREATE TABLE `category` (
     `id` int(11) NOT NULL AUTO_INCREMENT,
     `categoryName` varchar(50) DEFAULT null,
     PRIMARY KEY (`id`)
-) ENGINE = InnoDB AUTO_INCREMENT = utf8;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT  CHARSET = utf8;
 ```
 
+插入数据
+
+```mysql
+insert into `category` (id, categoryName) values (1,'运动馆'),(2,'女士馆'),(3,'男士馆'),(4,'帆布馆'),(5,'户外馆');
+```
+
+补充：查询
+
+```mysql
+# 查询所有
+select * from 表名;
+
+# 查询指定的列
+select 列名1,列名2... from 表名;
+
+# 查询起别名
+select 列名1 as 别名,列名2 别名... from 表名;
+
+# 条件查询
+select * from 表名 where 条件;
+```
+
+
+
+### 1.6 连接数据库
+
+koa连接数据库，先下载MySql
+
+1.下载 mysql 包
+
+```
+yarn add mysql
+```
+
+2.koa连接mysql
+
+
+
+3.测试数据库连接
+
+db/query.js
+
+```mysql
+var mysql = require("mysql");
+var pool = mysql.createPool({
+  connectionLimit: 10, //最大连接数
+  host: "主机",
+  user: "账号",
+  password: "密码",
+  database: "数据库",
+});
+
+//创建连接
+pool.getConnection(function (err, connection) {
+  if (err) throw err; // not connected!
+
+  // Use the connection 使用连接 发送 sql 语句到数据库mysql  中的 letao 数据库
+  //执行结果，在回调函数中参数二返回
+  connection.query("SELECT 1 + 1 as 结果", function (error, results, fields) {
+    // When done with the connection, release it.  连接上拿到数据后，将当前连接释放回连接池
+    connection.release();
+
+    // Handle error after the release.  抛出异常
+    if (error) throw error;
+
+    console.log("results", results);
+
+    // Don't use the connection here, it has been returned to the pool.
+  });
+});
+```
+
+
+
+### 1.7 封装查询方法 
+
+db/query.js
+
+```js
+//创建连接 sql:sql语句
+module.exports.query = (sql) => {
+  return new Promise((resolve, reject) => {
+    pool.getConnection(function (err, connection) {
+      if (err) throw err; // not connected!
+
+      // Use the connection 使用连接 发送 sql 语句到数据库mysql  中的 letao 数据库
+      //执行结果，在回调函数中参数二返回
+      connection.query(sql, function (error, results, fields) {
+        // When done with the connection, release it.  连接上拿到数据后，将当前连接释放回连接池
+        connection.release();
+
+        // Handle error after the release.  抛出异常
+        if (error) throw error;
+
+        resolve(results);
+        // Don't use the connection here, it has been returned to the pool.
+      });
+    });
+  });
+};
+```
+
+
+
+## 2.分类页
+
+1.创建 routes/category.js
+
+2.编写一级分类的接口
+
+3.调用该接口时，需要返回一级分类的数据
+
+app.js 注册
+
+```
+const category = require("./routes/category");
+app.use(category.routes(), category.allowedMethods());
+```
+
+
+
+
+
+
+
+routes/category.js
+
+```
+const router = require("koa-router")();
+const { query } = require("../db/query.js");
+
+// 一级分类接口
+router.get("/oneCategory", async (ctx) => {
+  const res = await query("select * from category");
+
+  ctx.body = {
+    status: 200,
+    data: res,
+  };
+});
+
+module.exports = router;
+```
+
+
+
+
+
+## 3.注册登录功能
+
+### 3.1 用户表
+
+ 创建user表
+
+```javascript
+-- letao.`user` definition  用户表
+
+CREATE TABLE `user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(50) DEFAULT NULL, 
+  `password` varchar(100) DEFAULT NULL,
+  `mobile` char(11) DEFAULT NULL,
+  `smscode` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+```
+
+### 3.2 用户注册
+
+#### 1.思路
+
+1. 按照MVC结构创建users.js
+2. 在routes/users.js 定义注册路由
+
+3. app.js 中注册路由
+
+
+
+#### 2.代码
+
+​	model/users.js
+
+```
+const { query } = require('../db/query');
+
+// 注册
+module.exports.register = async (username, password, mobile) => {
+    return await query(`insert into user (username, password, mobile) values( "${username}", "${password}", "${mobile}")`);
+}
+```
+
+
+
+controller/users.js
+
+```
+const { register } = require('../model/users');
+
+module.exports.register = async (ctx) => {
+     const { username, password, mobile } = ctx.request.body;
+     await register(username, password, mobile);
+     ctx.body = {
+         status:200,
+         msg:'注册成功'
+     }
+}
+```
+
+
+
+routes目录下user.js
+
+```
+const router = require('koa-router')();
+const { register} = require('../controller/users');
+
+// 用户注册
+router.post('/register', register);
+
+module.exports = router;
+```
+
+
+
+app.js
+
+```
+const users = require('./routes/users')
+
+app.use(users.routes(), users.allowedMethods())
+```
+
+
+
+### 3.3 joi表单数据校验
+
+joi文档地址：https://www.npmjs.com/package/joi
+
+手机号校验正则地址：https://learnku.com/articles/31543
+
+调用注册接口，如果请求参数数据不合法，我们不能进行注册，要提示用户参数不合法，即使前端做参数校验，后端也要做校验，万一用户使用postman等
+
+工具调用接口时，此时前端校验作废，所有后端需要做参数校验。
+
+joi库是专门用于服务端开发参数校验库，使用前需要使用yarn add joi 安装， 在使用时参照官方文档使用
+
+#### 1.思路
+
+1. 服务端使用推荐使用joi在controller层进行参数校验
+
+   1. 安装Joi   
+
+   ```
+   yarn add joi
+   ```
+
+   
+
+2. 在注册之前使用Joi库进行请求参数校验，通过继续下一步，否则返回异常信息，return 终止后续代码执行
+
+
+
+#### 2.代码
+
+```
+const { register } = require('../model/users');
+const Joi = require('joi');
+module.exports.register = async (ctx) => {
+     const { username, password, mobile } = ctx.request.body;
+        // 校验用户名  密码 手机号
+     const schema = Joi.object({
+         username:Joi.string().min(3).max(20).required(),
+         password:Joi.string().pattern(/^[a-zA-Z0-9]{3,20}$/),
+         repeat_password:Joi.ref('password'),
+         //手机号正则  
+         mobile:Joi.string().pattern(/^1(3\d|4[5-9]|5[0-35-9]|6[2567]|7[0-8]|8\d|9[0-35-9])\d{8}$/)
+     })
+
+     // 校验结果对象
+     const result = schema.validate({username,password,mobile});
+     if (result.error) {
+         ctx.body = {
+             status:false,
+             msg:result.error.details[0].message
+         }
+         return;
+     }
+    
+     await register(username, password, mobile);
+     ctx.body = {
+         status:200,
+         msg:'注册成功'
+     }
+}
+```
+
+
+
+### 3.4 用户是否已注册
+
+用户在注册时，调用注册接口，后端需要判断该用户是否已注册
+
+如果已注册，则提示用户已注册。否则，允许注册
+
+
+
+#### 1.思路
+
+1.根据用户名查询数据库中用户表是否存在该用户，是-->返回提示信息，否-->校验参数--> 存入数据库
+
+2.在model层，新建 findUserByUserName 方法，负责查询用户
+
+3.在controller，已注册-->返回提示信息， 否--> 校验参数 --> 存入数据库
+
+
+
+#### 2.代码
+
+   1.model/users.js
+
+```javascript
+// 根据用户名查询用户
+module.exports.findUserByUserName = async (username) => {
+  return await query({
+    sql: "select * from `user` where `username` = ?",
+    values: [username],
+  });
+};
+```
+
+2. controllers/users.js
+
+```
+const { register, findUserByUserName } = require("../model/users");
+const Joi = require("joi");
+
+module.exports.register = async (ctx) => {
+  const { username, password, mobile } = ctx.request.body;
+  // 校验用户名  密码 手机号
+  const schema = Joi.object({
+    username: Joi.string().min(3).max(20).required(),
+    password: Joi.string().pattern(/^[a-zA-Z0-9]{3,20}$/),
+    repeat_password: Joi.ref("password"),
+    //手机号正则
+    mobile: Joi.string().pattern(
+      /^1(3\d|4[5-9]|5[0-35-9]|6[2567]|7[0-8]|8\d|9[0-35-9])\d{8}$/
+    ),
+  });
+
+  // 校验结果对象
+  const result = schema.validate({ username, password, mobile });
+  if (result.error) {
+    ctx.body = {
+      status: false,
+      msg: result.error.details[0].message,
+    };
+    return;
+  }
+
+  //查询当前用户是否已注册
+  const user = await findUserByUserName(username);
+
+  //已注册
+  if (user[0]) {
+    ctx.body = {
+      status: 0,
+      msg: "用户名已存在",
+    };
+    return;
+  }
+
+  await register(username, password, mobile);
+  ctx.body = {
+    status: 200,
+    msg: "注册成功",
+  };
+};
+```
+
+
+
+### 3.5 用户注册加密
+
+文档地址：https://nodejs.org/dist/latest-v14.x/docs/api/crypto.html
+
+用户注册后，为了保护用户信息，需要对用户注册时密码拼接字符串进行加密，加密可以使用node中crypto模块实现
+
+
+
+#### 1.思路
+
+1.  根目录创建utils/index.js，封装方法完成用户密码的加密
+2.  根目录创建config/index.js 导出加密字符串
+3.  在controllers/users.js 注册时调用加密方法传入用户密码和字符串拼接作为参数，返回加密后的密文存储到数据库
+
+
+
+#### 2.代码
+
+utils/index.js
+
+```
+const crypto = require("crypto");
+
+/**
+ *  对用户注册成功后的密码进行MD5加密生成密文后返回
+ *  @param {string} pwd 用户注册的密码 拼接 一个随机字符串 后的字符串
+ *  @return {string} 返回加密后的密文
+ */
+module.exports.cryptoPwd = (pwd) => {
+  return crypto.createHash("MD5").update(pwd).digest("hex");
+};
+```
+
+config/index.js
+
+```
+// 用于密码机密字符串
+module.exports.secret = "letaoSecret";
+```
+
+controllers/users.js
+
+```
+const { register, findUserByUserName } = require("../model/users");
+const { cryptoPwd } = require("../utils");
+const { secret } = require("../config");
+const Joi = require("joi");
+
+module.exports.register = async (ctx) => {
+  const { username, password, mobile } = ctx.request.body;
+  // 校验用户名  密码 手机号
+  const schema = Joi.object({
+    username: Joi.string().min(3).max(20).required(),
+    password: Joi.string().pattern(/^[a-zA-Z0-9]{3,20}$/),
+    repeat_password: Joi.ref("password"),
+    //手机号正则
+    mobile: Joi.string().pattern(
+      /^1(3\d|4[5-9]|5[0-35-9]|6[2567]|7[0-8]|8\d|9[0-35-9])\d{8}$/
+    ),
+  });
+
+  // 校验结果对象
+  const result = schema.validate({ username, password, mobile });
+  if (result.error) {
+    ctx.body = {
+      status: false,
+      msg: result.error.details[0].message,
+    };
+    return;
+  }
+
+  //查询当前用户是否已注册
+  const user = await findUserByUserName(username);
+
+  //已注册
+  if (user[0]) {
+    ctx.body = {
+      status: 0,
+      msg: "用户名已存在",
+    };
+    return;
+  }
+
+  await register(username, cryptoPwd(password + secret), mobile);
+  ctx.body = {
+    status: 200,
+    msg: "注册成功",
+  };
+};
+```
+
+
+
+
+
+### 3.6 用户登录
+
+用户注册时，由于进行了加密，所以用户表里该用户的密码是加密之后的，用户在登录时，需要拿到用户密码在一次加密后进行比对，是否一致
+
+
+
+#### 1.思路
+
+1.在 controller/users.js 写一个登录方法login 拿到请求参数，用户信息
+
+2.在model/users.js 查询数据库当前用户信息是否存在
+
+3.根据查询结果来决定是否登录成功
+
+
+
+#### 2.代码
+
+controller/users.js
+
+```
+// 登录
+module.exports.login = async (ctx) => {
+  const { username, password } = ctx.request.body;
+
+  // 查询用户信息
+  const user = await findUserInfo(username, cryptoPwd(password + secret));
+
+  if (user[0]) {
+    ctx.body = {
+      status: 200,
+      msg: "登录成功",
+    };
+  } else {
+    ctx.body = {
+      status: 0,
+      msg: "登录失败，用户名或密码错误",
+    };
+  }
+};
+```
+
+
+
+model/users.js
+
+```
+module.exports.findUserInfo = async (username, password) => {
+  return await query({
+    sql: "select * from `user` where `username` = ? and `password` = ?",
+    values: [username, password],
+  });
+};
+```
+
+
+
+routes/users.js
+
+```
+router.post("/login", login);
+```
+
+
+
+
+
+### 3.7 短信验证
+
+#### 1.短信验证作用
+
+-  验证用户身份，保证用户填写的手机号码的真实性
+-  减少非法注册和恶意注册，提高会员注册质量
+-  提高网站用户注册的质量，更有效地管理注册用户，随时保持联系和沟通
+
+#### 2.安装SDK
+
+```javascript
+yarn add tencentcloud-sdk-nodejs
+```
+
+#### 3.短信验证代码
+
+​     utils目录下utils.js
+
+    // 生成指定范围的随机整数
+     module.exports.getRandom = (min, max) => {
+         return Math.floor(Math.random() * (max - min) + 1);
+     }
+     
+     // 短信验证码
+     module.exports.smscode = (codeLen) => {
+         let code = '';
+         for (let i = 0; i < codeLen; i++) {
+             code += this.getRandom(0, 9);
+         }
+         return code;
+     }
+     
+     // 发送短信功能
+     module.exports.sendSms = async (mobile, code) => {
+         const tencentcloud = require("tencentcloud-sdk-nodejs")
+         // 导入对应产品模块的client models。
+         const smsClient = tencentcloud.sms.v20210111.Client
+         /* 实例化要请求产品(以sms为例)的client对象 */
+         const client = new smsClient({
+             credential: {
+                 /* 必填：腾讯云账户密钥对secretId，secretKey。
+                  * 这里采用的是从环境变量读取的方式，需要在环境变量中先设置这两个值。
+                  * 你也可以直接在代码中写死密钥对，但是小心不要将代码复制、上传或者分享给他人，
+                  * 以免泄露密钥对危及你的财产安全。
+                  * CAM密匙查询: https://console.cloud.tencent.com/cam/capi */
+                 secretId: process.env.secretId,
+                 secretKey: process.env.secretKey,
+             },
+             /* 必填：地域信息，可以直接填写字符串ap-guangzhou，或者引用预设的常量 */
+             region: "ap-guangzhou",
+             /* 非必填:
+              * 客户端配置对象，可以指定超时时间等配置 */
+             profile: {
+                 /* SDK默认用TC3-HMAC-SHA256进行签名，非必要请不要修改这个字段 */
+                 signMethod: "HmacSHA256",
+                 httpProfile: {
+                     /* SDK默认使用POST方法。
+                      * 如果你一定要使用GET方法，可以在这里设置。GET方法无法处理一些较大的请求 */
+                     reqMethod: "POST",
+                     /* SDK有默认的超时时间，非必要请不要进行调整
+                      * 如有需要请在代码中查阅以获取最新的默认值 */
+                     reqTimeout: 30,
+                     /**
+                      * SDK会自动指定域名。通常是不需要特地指定域名的，但是如果你访问的是金融区的服务
+                      * 则必须手动指定域名，例如sms的上海金融区域名： sms.ap-shanghai-fsi.tencentcloudapi.com
+                      */
+                     endpoint: "sms.tencentcloudapi.com"
+                 },
+             },
+         })
+         /* 请求参数，根据调用的接口和实际情况，可以进一步设置请求参数
+         * 属性可能是基本类型，也可能引用了另一个数据结构
+         * 推荐使用IDE进行开发，可以方便的跳转查阅各个接口和数据结构的文档说明 */
+         const params = {
+             /* 短信应用ID: 短信SmsSdkAppId在 [短信控制台] 添加应用后生成的实际SmsSdkAppId，示例如1400006666 */
+             SmsSdkAppId: process.env.SmsSdkAppId,
+             /* 短信签名内容: 使用 UTF-8 编码，必须填写已审核通过的签名，签名信息可登录 [短信控制台] 查看 */
+             SignName: process.env.SignName,
+             /* 短信码号扩展号: 默认未开通，如需开通请联系 [sms helper] */
+             ExtendCode: "",
+             /* 国际/港澳台短信 senderid: 国内短信填空，默认未开通，如需开通请联系 [sms helper] */
+             SenderId: "",
+             /* 用户的 session 内容: 可以携带用户侧 ID 等上下文信息，server 会原样返回 */
+             SessionContext: "",
+             /* 下发手机号码，采用 e.164 标准，+[国家或地区码][手机号]
+              * 示例如：+8613711112222， 其中前面有一个+号 ，86为国家码，13711112222为手机号，最多不要超过200个手机号*/
+             PhoneNumberSet: [`+86${mobile}`],
+             /* 模板 ID: 必须填写已审核通过的模板 ID。模板ID可登录 [短信控制台] 查看 */
+             TemplateId: process.env.TemplateId,
+             /* 模板参数: 若无模板参数，则设置为空*/
+             TemplateParamSet: [code],
+         }
+         // 通过client对象调用想要访问的接口，需要传入请求对象以及响应回调函数
+         return await client.SendSms(params);
+     }
+
+
+
+​      controller目录下sms.js
+
+```javascript
+const { smscode, sendSms } = require('../utils/utils');
+// 短信验证
+module.exports.sms = async (ctx) => {
+    // 请求参数手机号
+    const { mobile } = ctx.request.body;
+    // 短信验证码随机数 4位数字 
+    const code = smscode(4);
+    const data = await sendSms(mobile, code)
+    // 发送失败
+    if (data.SendStatusSet[0].Code != 'Ok') {
+        ctx.body = {
+            status: 1040,
+            msg:data.SendStatusSet[0].Message
+        }
+        return;
+    }
+    ctx.body = {
+        status:200,
+        code,
+        msg:'短信发送成功'
+    }
+    
+}
+```
+
+短信服务开通后，按照官方提供sdk，代码复制粘贴，相关信息，我们要使用 env node环境变量做配置
+
+
+
+
+
+### 3.8 JWT

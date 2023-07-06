@@ -9,6 +9,8 @@ const logger = require("koa-logger"); //记录日志
 //加载路由
 const index = require("./routes/index");
 const users = require("./routes/users");
+const category = require("./routes/category");
+const sms = require("./routes/sms");
 
 // error handler  错误处理
 onerror(app);
@@ -40,6 +42,8 @@ app.use(async (ctx, next) => {
 // routes 注册路由
 app.use(index.routes(), index.allowedMethods());
 app.use(users.routes(), users.allowedMethods());
+app.use(category.routes(), category.allowedMethods());
+app.use(sms.routes(), sms.allowedMethods());
 
 // error-handling 错误处理 一旦监听到异常，打印异常信息
 app.on("error", (err, ctx) => {
