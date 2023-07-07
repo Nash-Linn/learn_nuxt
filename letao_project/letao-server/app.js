@@ -5,6 +5,8 @@ const json = require("koa-json"); //json格式化
 const onerror = require("koa-onerror"); //处理异常
 const bodyparser = require("koa-bodyparser"); //解析post请求
 const logger = require("koa-logger"); //记录日志
+const jwt = require("koa-jwt"); //jwt
+const { jwtSecret } = require("./config");
 
 //加载路由
 const index = require("./routes/index");
@@ -16,6 +18,25 @@ const sms = require("./routes/sms");
 onerror(app);
 
 // middlewares 中间件
+//使用koa-jwt中间件，验证token 拦截客户端在调用接口时，没有传递token的情况 返回401没有权限访问
+app.use(function (ctx, next) {
+  return next().catch((err) => {
+    if (401 == err.status) {
+      ctx.status = 401;
+      ctx.body = "Protected resource, use Authorization header to get access\n";
+    } else {
+      throw err;
+    }
+  });
+});
+
+//设置哪些接口不需要token, unless
+app.use(
+  jwt({ jwtSecret }).unless({
+    path: [/^\/public/, , /^\/users\/register/, /^\/users\/login/],
+  })
+);
+
 app.use(
   bodyparser({
     enableTypes: ["json", "form", "text"],
